@@ -5,7 +5,6 @@ type Variable = String
 data Value 
   = ValInt Int
   | ValNum Float
-  | ValStr String
   deriving (Show, Eq, Ord)
 
 data Expr
