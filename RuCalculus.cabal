@@ -1,0 +1,17 @@
+name:                RuCalculus
+version:             0.1.0.0
+-- synopsis:
+-- description:
+license:             Apache
+license-file:        LICENSE
+build-type:          Simple
+cabal-version:       >=1.10
+extra-source-files:  README.md
+
+executable RuCalculus
+  hs-source-dirs:      src
+  main-is:             Main.hs
+  other-modules:       AST
+                     , Eval
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
