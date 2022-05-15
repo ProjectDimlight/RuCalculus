@@ -3,7 +3,7 @@ module AST (Variable, Value(..), Expr(..)) where
 type Variable = String
 
 data Value 
-  = ValInt Int
+  = ValInt Integer
   | ValNum Float
   deriving (Show, Eq, Ord)
 
