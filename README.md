@@ -1,2 +1,9 @@
 # RuCalculus
-"入算术", the Chinese verision of lambda calculus
+
+"入语言"是一种用中文表示lambda演算的函数式编程语言，因专注于整活而生。我们通过精妙的语言设计以让其基本符合中文（文言文）的语法结构，其中最为显著的一点就是"入语言"中大量使用后缀表达式。
+
+## Quick Start
+
+Todo~
+
+## Documents
