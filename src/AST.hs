@@ -1,9 +1,9 @@
-module AST (Variable, Value(..), Expr(..)) where
+module AST where
 
 type Variable = String
 
 data Value 
-  = ValInt Int
+  = ValInt Integer
   | ValNum Float
   deriving (Show, Eq, Ord)
 
@@ -13,6 +13,4 @@ data Expr
   | ExprApply Expr Expr
   | ExprValue Value
   | ExprHostFunc ([Expr] -> Expr)
-
-
 
