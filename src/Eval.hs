@@ -1,6 +1,5 @@
 module Eval where
 import AST
-import Control.Arrow (ArrowChoice(right))
 
 data EvalError
   = Atom
