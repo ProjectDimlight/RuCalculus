@@ -1,5 +1,5 @@
-module Eval where
-import AST
+module Eval (EvalError, injectHostFunctions, step, runStepByStep, run) where
+import AST ( Expr(..), Value(ValInt), Variable )
 import Control.Arrow (ArrowChoice(right))
 
 data EvalError
