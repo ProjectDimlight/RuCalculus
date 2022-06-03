@@ -22,14 +22,17 @@ myParserTrace s = pt <|> return ()
     where
         pt = try $ do
            x <- try $ many1 anyToken
-           trace (s++": " ++ ushow x) $ try $ eof
+           trace (s++": " ++ show x) $ try $ eof
            fail (ushow x)
 
 main :: IO ()
 main = do
   --code <- getLine
   uprint (parse MP.variable "" "【入语言】")
+  uprint (parse MP.variable "" "【入语言】123")
   uprint (parse MP.value "" "123甲")
-  myParseTest (MP.expr >> parserTrace "label") "入甲得甲"
-  myParseTest (MP.expr >> parserTrace "label") "入甲得甲取2者"
-  myParseTest (MP.expr >> parserTrace "label") "2之入甲得甲"
+  uprint (parse MP.expr "" "甲")
+  uprint (parse MP.expr "" "【入语言】")
+  uprint (parse MP.expr "" "入甲得甲")
+  uprint (parse MP.expr "" "入甲得甲取2者")
+  uprint (parse MP.expr "" "2之入甲得甲")

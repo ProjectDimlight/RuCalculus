@@ -12,8 +12,9 @@ concatParser [s] = s
 concatParser (s:xs) = fmap (++) s <*> concatParser xs
 
 variable :: Parsec String st AST.Variable
-variable = try ( concatParser [string "【", many (noneOf "】"), string "】"] )
+variable = ( concatParser [string "【", many (noneOf "】"), string "】"] )
     <|> count 1 (ruChar)
+    <|> error "Illegal identifier"
 
 lexer = P.makeTokenParser haskellDef
 value :: Parsec String st Value
@@ -27,20 +28,24 @@ exprLambda = do _ <- string "入"
                 return $ ExprLambda var exp
 
 exprApply :: Parsec String st Expr
-exprApply = do exp2 <- expr
+exprApply = do exp2 <- expr'
                _ <- string "之"
                exp1 <- expr
                return $ ExprApply exp1 exp2 
 
 exprApplyRev :: Parsec String st Expr
-exprApplyRev = do exp1 <- expr
+exprApplyRev = do exp1 <- exprLambda
                   _ <- string "取"
                   exp2 <- expr
                   _ <- string "者"
                   return $ ExprApply exp1 exp2
 
-expr :: Parsec String st Expr
-expr = fmap ExprVar (try variable)
+expr' :: Parsec String st Expr
+expr' = try exprApplyRev
     <|> try exprLambda
-    <|> try exprApply
-    <|> try exprApplyRev
+    <|> fmap ExprValue (try value)
+    <|> fmap ExprVar (try variable)
+
+expr :: Parsec String st Expr
+expr = (try exprApply) <|> (try expr')
+          
