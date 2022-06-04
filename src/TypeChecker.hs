@@ -47,7 +47,8 @@ checkType' env (ExprApply func val) = do
 
 checkType' _ (ExprValue (ValInt _)) = Right $ TypeVal ValTypeInt
 checkType' _ (ExprValue (ValNum _)) = Right $ TypeVal ValTypeNum
-checkType' _ (ExprHostFunc _ t _) = Right t
+checkType' _ (ExprValue ValUnit) = Right $ TypeVal ValTypeUnit
+checkType' _ (ExprHostFunc _ t _ _) = Right t
 
 checkType :: Expr -> Either TypeError Type
 checkType = checkType' []
