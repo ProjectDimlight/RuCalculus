@@ -65,7 +65,7 @@ runStepByStep expr = do
   print expr
   step' <- step expr
   case step' of
-    Right expr -> getChar >> runStepByStep expr 
+    Right expr -> runStepByStep expr 
     Left Atom -> pure ()
     Left err -> putStrLn "= Error =" >> print err
 

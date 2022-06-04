@@ -5,7 +5,7 @@ import qualified Text.Parsec.Token as P
 import Text.Parsec.Language (haskellDef)
 
 ruChar :: Parsec String st Char
-ruChar = noneOf "入得之取者也以为则【】"
+ruChar = noneOf "入得之取者也以为并则即元【】"
 
 ruWhiteSpace :: Parsec String st Char
 ruWhiteSpace = oneOf " \t\n，：！？。"
@@ -24,7 +24,10 @@ variable = try ( concatParser [ruString "【", many (noneOf "】"), ruString "�
 
 lexer = P.makeTokenParser haskellDef
 value :: Parsec String st Value
-value = fmap ValInt (P.integer lexer)
+value = fmap ValNum (try (P.float lexer))
+    <|> fmap ValInt (try (P.integer lexer))
+    <|> try (do _ <- ruString "元"
+                return ValUnit)
 
 ruString str = do _ <- ruSpaces
                   res <- string str
@@ -74,8 +77,8 @@ exprLet :: Parsec String st Expr
 exprLet = do _ <- ruString "以"
              var <- variable
              _ <- ruString "为"
-             exp1 <- expr
-             _ <- ruString "则"
+             exp1 <- exprApply
+             other <- try (ruString "并") <|> try (ruString "则")
              exp2 <- expr
              return $ ExprApply (ExprLambda var exp2) exp1
 

@@ -4,7 +4,7 @@ module Main where
 
 import MonadicParse as MP
 import Eval
-import Lib
+import HostFuncs
 import Text.Parsec
 import Text.Show.Unicode
 
@@ -42,7 +42,13 @@ main = do
   uprint ("----------------------------")
   uprint ("第6节 求值")
   case (parse MP.expr "" "以 甲 为 100 ，则：\n3之 入乙得甲与乙之和？") of
-      Right expr -> runStepByStep $ injectHostFunctions ["和", TypeFuncDelay "" (ExprVar ""), ruSum] expr
+      Right expr -> runStepByStep $ injectHostFunctions hostFuncs expr
+      Left err -> putStrLn "= Error =" >> print err
+  case (parse MP.expr "" "\
+  \以【圆周率】为3.14，\
+  \并以【圆面积】为入【半径】得【半径】与【半径】之积与【圆周率】之积，\
+  \则：2.0之【圆面积】") of
+      Right expr -> runStepByStep $ injectHostFunctions hostFuncs expr
       Left err -> putStrLn "= Error =" >> print err
   uprint ("----------------------------")
   uprint ("测试完成")

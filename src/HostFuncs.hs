@@ -51,6 +51,7 @@ hostFuncs =
     [
         sum,
         sub,
+        prod,
         print'
     ]
     where
@@ -67,7 +68,13 @@ hostFuncs =
         (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValNum $ a' - b'
         _ -> Left "参数不是数字"
 
-    print' = packResultTyped False "印" 1 (TypeVal ValTypeUnit) $ \[a] -> 
+    prod = packUntyped False "积" 2 $ \[a, b] ->
+        pure $ case (a, b) of
+        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ a' * b'
+        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValNum $ a' * b'
+        _ -> Left "参数不是数字"
+
+    print' = packResultTyped False "书" 1 (TypeVal ValTypeUnit) $ \[a] -> 
         print a >> pure (Right $ ExprValue ValUnit)
 
     

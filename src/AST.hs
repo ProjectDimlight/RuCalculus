@@ -28,7 +28,7 @@ instance Show Type where
 
 data Value
   = ValInt Integer
-  | ValNum Float
+  | ValNum Double
   | ValUnit
   deriving (Show, Eq, Ord)
 
