@@ -18,17 +18,18 @@ apply' var val (ExprApply a b) = ExprApply (apply' var val a) (apply' var val b)
 apply' _ _ (ExprValue v) = ExprValue v
 apply' _ _ (ExprHostFunc name t f) = ExprHostFunc name t f
 
-apply :: Variable -> Value -> Expr -> Expr
-apply var val = apply' var $ ExprValue val
-
-injectHostFunctions :: [(String, Type, Value -> IO Expr)] -> Expr -> Expr
+injectHostFunctions :: [(String, Type, Expr -> IO Expr)] -> Expr -> Expr
 injectHostFunctions ls e = foldl (\e (name, t, f) -> apply' name (ExprHostFunc name t f) e) e ls
 
 step :: Expr -> Either EvalError (IO Expr)
 step (ExprVar v) = Left $ UnboundedVariable v
 step (ExprLambda s v) = Left Atom
-step (ExprApply (ExprLambda v lambda) (ExprValue val)) = Right $ pure $ apply v val lambda
-step (ExprApply (ExprHostFunc name _ f) (ExprValue val)) = Right $ f val
+step (ExprApply (ExprLambda v lambda) arg) = 
+  case step arg of 
+    Left Atom -> Right $ pure $ apply' v arg lambda
+    Right arg' -> Right $ fmap (ExprApply (ExprLambda v lambda)) arg'
+    Left e -> Left e
+step (ExprApply (ExprHostFunc name _ f) arg) = Right $ f arg
 step (ExprApply left right) =
   case step left of
     Right expr -> Right $ expr >>= \e -> pure $ ExprApply e right
