@@ -17,6 +17,6 @@ data Expr
 
 instance Show Expr where
     show (ExprValue val) = "(" ++ ushow val ++ ")"
-    show (ExprVar var) = ushow var
-    show (ExprLambda var exp) = "lambda " ++  (ushow var) ++ " . " ++ (ushow exp)
-    show (ExprApply exp1 exp2) = "(" ++ (ushow exp1) ++ ") " ++ (ushow exp2)
+    show (ExprVar var) = var
+    show (ExprLambda var exp) = "lambda " ++  var ++ " . " ++ (ushow exp)
+    show (ExprApply exp1 exp2) = " (" ++ (ushow exp1) ++ "  " ++ (ushow exp2) ++ ") "
