@@ -6,11 +6,13 @@ type Variable = String
 data ValueType
   = ValTypeInt
   | ValTypeNum
+  | ValTypeUnit
   deriving Eq
 
 instance Show ValueType where
-  show ValTypeInt = "Int"
-  show ValTypeNum = "Num"
+  show ValTypeInt = "整"
+  show ValTypeNum = "实"
+  show ValTypeUnit = "元"
 
 data Type
   = TypeVal ValueType
@@ -27,18 +29,21 @@ instance Show Type where
 data Value
   = ValInt Integer
   | ValNum Float
+  | ValUnit
   deriving (Show, Eq, Ord)
+
+type IsLazy = Bool
 
 data Expr
   = ExprVar Variable
   | ExprLambda Variable Expr
   | ExprApply Expr Expr
   | ExprValue Value
-  | ExprHostFunc String Type (Expr -> IO (Either String Expr))
+  | ExprHostFunc String Type IsLazy (Expr -> IO (Either String Expr))
 
 instance Show Expr where
     show (ExprValue val) = "(" ++ ushow val ++ ")"
     show (ExprVar var) = ushow var
     show (ExprLambda var exp) = "lambda " ++  ushow var ++ " . " ++ ushow exp
     show (ExprApply exp1 exp2) = "(" ++ ushow exp1 ++ ") " ++ ushow exp2
-    show (ExprHostFunc name t _) = "<host-func: " ++ show t ++ ">"
+    show (ExprHostFunc name t _ _) = "<" ++ name ++ ": " ++ show t ++ ">"

@@ -14,6 +14,7 @@ executable RuCalculus
   other-modules:       AST
                      , Eval
                      , TypeChecker
+                     , HostFuncs
                      , Parse
                      , MonadicParse
                      , Lib
