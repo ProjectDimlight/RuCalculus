@@ -3,6 +3,7 @@
 module Main where
 
 import MonadicParse as MP
+import Eval
 import Text.Parsec
 import Text.Show.Unicode
 
@@ -37,3 +38,10 @@ main = do
   uprint ("----------------------------")
   uprint ("第5节 空白字符")
   uprint (parse MP.expr "" "以 甲 为 100 ，则：\n3之 入乙得甲与乙之和？")
+  uprint ("----------------------------")
+  uprint ("第6节 求值")
+  case (parse MP.expr "" "以 甲 为 100 ，则：\n3之 入乙得甲与乙之和？") of
+      Right expr -> runStepByStep expr
+      Left err -> putStrLn "= Error =" >> print err
+  uprint ("----------------------------")
+  uprint ("测试完成")
