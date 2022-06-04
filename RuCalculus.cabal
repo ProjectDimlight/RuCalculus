@@ -13,6 +13,7 @@ executable RuCalculus
   main-is:             Main.hs
   other-modules:       AST
                      , Eval
+                     , TypeChecker
                      , Parse
                      , MonadicParse
   default-language:    Haskell2010
