@@ -55,4 +55,4 @@ checkType = checkType' []
 testTypeChecker :: IO ()
 testTypeChecker =
   print $ checkType $
-    ExprApply (ExprLambda "a" $ ExprVar "a") $ ExprValue $ ValInt 1
+    ExprApply (ExprLambda "a" $ ExprLambda "b" $ ExprVar "a") $ ExprValue $ ValInt 1

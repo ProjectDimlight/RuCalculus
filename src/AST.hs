@@ -34,7 +34,7 @@ data Expr
   | ExprLambda Variable Expr
   | ExprApply Expr Expr
   | ExprValue Value
-  | ExprHostFunc String Type (Expr -> IO Expr)
+  | ExprHostFunc String Type (Expr -> IO (Either String Expr))
 
 instance Show Expr where
     show (ExprValue val) = "(" ++ ushow val ++ ")"
