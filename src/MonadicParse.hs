@@ -68,7 +68,9 @@ exprApply = do exp2 <- exprR
                           <|> return exp2
 
 exprApplyRev :: Parsec String st Expr
-exprApplyRev = do exp1 <- exprLambda
+exprApplyRev = do exp1 <- try exprLambda
+                      <|> try exprValue
+                      <|> try exprVariable
                   _ <- ruString "取"
                   exp2 <- expr
                   _ <- ruString "者"

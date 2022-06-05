@@ -1,6 +1,7 @@
 {-# LANGUAGE LambdaCase #-}
 module Eval where
 import AST
+import Text.Show.Unicode
 import HostFuncs (hostFuncs)
 
 data EvalError
@@ -67,13 +68,13 @@ runStepByStep expr = do
   case step' of
     Right expr -> runStepByStep expr 
     Left Atom -> pure ()
-    Left err -> putStrLn "= Error =" >> print err
+    Left err -> putStrLn "= Error =" >> uprint err
 
 run :: Bool -> Expr -> IO ()
 run showResult expr = reduce expr >>= \case
   Right (ExprValue ValUnit) -> pure ()
   Right expr -> if showResult then print expr else pure ()
-  Left err -> putStrLn "= Error =" >> print err
+  Left err -> putStrLn "= Error =" >> uprint err
 
 
 test :: IO ()
