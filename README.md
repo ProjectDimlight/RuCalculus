@@ -4,6 +4,15 @@
 
 ## Quick Start
 
-Todo~
+使用入语言解释器：
+```
+RuCalculus 源代码.入
+RuCalculus 源代码.入 -d   # 逐步打印演算过程
+```
+
+使用stack启动入语言解释器：
+```
+stack run -- 源代码.入
+```
 
 ## Documents
