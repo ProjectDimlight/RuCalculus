@@ -3,6 +3,7 @@ import AST
 import Text.Parsec
 import qualified Text.Parsec.Token as P
 import Text.Parsec.Language (haskellDef)
+import Text.Parsec.String (parseFromFile)
 
 ruChar :: Parsec String st Char
 ruChar = noneOf "入得之取者也以为并则即元【】"
@@ -93,3 +94,7 @@ expr = do _ <- ruSpaces
           res <- (try exprLet) <|> (try exprApply)
           _ <- ruSpaces
           return res
+
+
+parseRu :: FilePath -> IO (Either ParseError Expr)
+parseRu = parseFromFile expr
