@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Main where
 
@@ -7,48 +8,39 @@ import Eval
 import HostFuncs
 import Text.Parsec
 import Text.Show.Unicode
+import qualified System.Environment
+
+data Option = Option { debug :: Bool, file :: Maybe String }
+
+parseOption :: Option -> [String] -> Either String Option
+parseOption o [] = Right o
+parseOption Option { debug = True } ("-d":_) = Left "\'-d\'标记仅可使用一次"
+parseOption o ("-d":xs) = parseOption o { debug = True } xs
+parseOption Option { file = Just _} (_:_) = Left "仅可指定一个要执行的文件"
+parseOption o (file:xs) = parseOption o { file = Just file } xs
+
+help :: IO ()
+help = putStr $ unlines
+    [
+        "入算术",
+        "作者：SOL、许兴逸",
+        "",
+        "用术：",
+        "    ./RuCalculus [-d] <src.入>",
+        "",
+        "    -d 逐步演算",
+        ""
+    ]
+
+runProgram :: Option -> IO ()
+runProgram Option { debug = debug, file = Just file } =
+  let expr = parseRu file
+      runner = if debug then runStepByStep else run True
+      runCode = runner . injectHostFunctions hostFuncs in
+  expr >>= \case
+    Left err -> print err
+    Right x -> runCode x
+runProgram _ = help
 
 main :: IO ()
-main = do
-  --code <- getLine
-  uprint ("----------------------------")
-  uprint ("第1节 Token")
-  uprint (parse MP.variable "" "【入语言】")
-  uprint (parse MP.variable "" "【入语言】123")
-  uprint (parse MP.value "" "123甲")
-  uprint (parse MP.expr "" "甲")
-  uprint (parse MP.expr "" "【入语言】")
-  uprint ("----------------------------")
-  uprint ("第2节 复合函数")
-  uprint (parse MP.expr "" "入甲得甲")
-  uprint (parse MP.expr "" "入甲得甲取2者")
-  uprint (parse MP.expr "" "2之入甲得甲")
-  uprint (parse MP.expr "" "甲与甲之积")
-  uprint (parse MP.expr "" "入甲得甲与甲之积")
-  uprint (parse MP.expr "" "入函得入甲得甲之函之函")
-  uprint (parse MP.expr "" "3之入函得入甲得甲之函之函取入甲得甲与甲之积者")
-  uprint ("----------------------------")
-  uprint ("第3节 二元函数")
-  uprint (parse MP.expr "" "甲与甲与甲之积之积")
-  uprint (parse MP.expr "" "甲与甲之积与甲之积")
-  uprint (parse MP.expr "" "3之入甲得甲与甲之积与甲与甲之积之积")
-  uprint (parse MP.expr "" "3之入甲得甲与甲之积与甲与甲之积之积")
-  uprint ("----------------------------")
-  uprint ("第4节 let")
-  uprint (parse MP.expr "" "以甲为100则3之入乙得甲与乙之和")
-  uprint ("----------------------------")
-  uprint ("第5节 空白字符")
-  uprint (parse MP.expr "" "以 甲 为 100 ，则：\n3之 入乙得甲与乙之和？")
-  uprint ("----------------------------")
-  uprint ("第6节 求值")
-  case (parse MP.expr "" "以 甲 为 100 ，则：\n3之 入乙得甲与乙之和？") of
-      Right expr -> runStepByStep $ injectHostFunctions hostFuncs expr
-      Left err -> putStrLn "= Error =" >> print err
-  case (parse MP.expr "" "\
-  \以【圆周率】为3.14，\
-  \并以【圆面积】为入【半径】得【半径】与【半径】之积与【圆周率】之积，\
-  \则：2.0之【圆面积】") of
-      Right expr -> runStepByStep $ injectHostFunctions hostFuncs expr
-      Left err -> putStrLn "= Error =" >> print err
-  uprint ("----------------------------")
-  uprint ("测试完成")
+main = System.Environment.getArgs >>= either putStrLn runProgram . parseOption Option { debug = False, file = Nothing }

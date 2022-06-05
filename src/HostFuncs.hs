@@ -52,6 +52,8 @@ hostFuncs =
         sum,
         sub,
         prod,
+        div,
+        mod,
         print'
     ]
     where
@@ -60,19 +62,33 @@ hostFuncs =
         case (a, b) of
             (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ a' + b'
             (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValNum $ a' + b'
-            _ -> Left "参数不是数字"
+            _ -> Left "参数非数，且亦数类也"
 
     sub = packUntyped False "差" 2 $ \[a, b] ->
         pure $ case (a, b) of
         (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ a' - b'
         (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValNum $ a' - b'
-        _ -> Left "参数不是数字"
+        _ -> Left "参数非数也，且亦数类也"
 
     prod = packUntyped False "积" 2 $ \[a, b] ->
         pure $ case (a, b) of
         (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ a' * b'
         (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValNum $ a' * b'
-        _ -> Left "参数不是数字"
+        _ -> Left "参数非数也，且亦数类也"
+
+    div = packUntyped False "商" 2 $ \[a, b] ->
+        pure $ case (a, b) of
+        (ExprValue (ValInt _), ExprValue (ValInt 0)) -> Left "为法不能零"
+        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ a' `Prelude.div` b'
+        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValNum $ a' / b'
+        _ -> Left "参数非数也，且亦数类也"
+
+    mod = packUntyped False "余" 2 $ \[a, b] ->
+        pure $ case (a, b) of
+        (ExprValue (ValInt _), ExprValue (ValInt 0)) -> Left "为法不能零"
+        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ a' `Prelude.mod` b'
+        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Left "不能实数求余"
+        _ -> Left "参数非数也，且亦数类也"
 
     print' = packResultTyped False "书" 1 (TypeVal ValTypeUnit) $ \[a] -> 
         print a >> pure (Right $ ExprValue ValUnit)
