@@ -54,6 +54,9 @@ hostFuncs =
         prod,
         div,
         mod,
+        match,
+        equal,
+        unequal,
         print'
     ]
     where
@@ -88,6 +91,24 @@ hostFuncs =
         (ExprValue (ValInt _), ExprValue (ValInt 0)) -> Left "为法不能零"
         (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ a' `Prelude.mod` b'
         (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Left "不能实数求余"
+        _ -> Left "参数非数也，且亦数类也"
+
+    match = packUntyped False "择" 3 $ \[cond, a, b] ->
+        pure $ case cond of
+          (ExprValue (ValInt 0)) -> Right $ b
+          (ExprValue (ValInt _)) -> Right $ a
+          _ -> Left "条件非数也，且亦数类也"
+
+    equal = packUntyped False "等" 2 $ \[a, b] ->
+        pure $ case (a, b) of
+        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ if a' == b' then 1 else 0
+        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValInt $ if a' == b' then 1 else 0
+        _ -> Left "参数非数也，且亦数类也"
+    
+    unequal = packUntyped False "异" 2 $ \[a, b] ->
+        pure $ case (a, b) of
+        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ if a' /= b' then 1 else 0
+        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValInt $ if a' /= b' then 1 else 0
         _ -> Left "参数非数也，且亦数类也"
 
     print' = packResultTyped False "书" 1 (TypeVal ValTypeUnit) $ \[a] -> 

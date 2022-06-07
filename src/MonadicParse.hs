@@ -6,16 +6,16 @@ import Text.Parsec.Language (haskellDef)
 import Text.Parsec.String (parseFromFile)
 
 ruChar :: Parsec String st Char
-ruChar = noneOf "入得之取者也以为并则即元【】"
+ruChar = noneOf "若入之取者也以为并则即元【】"
 
 ruWhiteSpace :: Parsec String st Char
-ruWhiteSpace = oneOf " \t\n，：！？。"
+ruWhiteSpace = oneOf " \t\n，：！？得。"
 
 ruSpaces :: Parsec String st ()
 ruSpaces = optional (many ruWhiteSpace)
 
 concatParser :: [Parsec String st String] -> (Parsec String st String)
-concatParser [] = error "Empty list of parsers"
+concatParser [] = error "此列为空"
 concatParser [s] = s
 concatParser (s:xs) = fmap (++) s <*> concatParser xs
 
@@ -41,7 +41,7 @@ exprVariable = fmap ExprVar variable
 exprLambda :: Parsec String st Expr
 exprLambda = do _ <- ruString "入"
                 var <- variable
-                _ <- ruString "得"
+                _ <- try(ruString "") 
                 exp <- expr
                 return $ ExprLambda var exp
 
@@ -49,13 +49,13 @@ exprApplyBin :: Expr -> (Parsec String st Expr)
 exprApplyBin exp2 = (do _ <- ruString "与"
                         t1 <- exprR
                         exp3 <- (try (exprApplyBin t1)) <|> (return t1)
-                        _ <- ruString "之"
+                        _ <- try (ruString "之") <|> (ruString "相")
                         exp1 <- exprR
                         return (ExprApply (ExprApply exp1 exp2) exp3))
 
 exprApplyUni :: Expr -> (Parsec String st Expr)
 exprApplyUni exp2 = (do _ <- ruString "之"
-                        exp1 <- expr
+                        exp1 <- exprR
                         return (ExprApply exp1 exp2)) 
 
 exprApply :: Parsec String st Expr
@@ -76,14 +76,36 @@ exprApplyRev = do exp1 <- try exprLambda
                   _ <- ruString "者"
                   return $ ExprApply exp1 exp2
 
+--------------------------------------------------------
+
+eta = ExprLambda "z" (ExprApply (ExprVar "y") (ExprApply (ExprVar "y") (ExprVar "z")))
+step = ExprLambda "y" (ExprApply (ExprVar "x") eta)
+ycomb = ExprLambda "x" (ExprApply step step)
+
 exprLet :: Parsec String st Expr
 exprLet = do _ <- ruString "以"
              var <- variable
              _ <- ruString "为"
              exp1 <- exprApply
-             other <- try (ruString "并") <|> try (ruString "则")
-             exp2 <- expr
-             return $ ExprApply (ExprLambda var exp2) exp1
+             exp2 <- try(do _ <- try (ruString "并") <|> try (ruString "则")
+                            exp2 <- expr
+                            return exp2)
+                 <|> exprLet
+             return $ ExprApply (ExprLambda var exp2) $ ExprApply ycomb (ExprLambda var exp1) 
+
+exprMatch :: Parsec String st Expr
+exprMatch = do _ <- ruString "令"
+               exp1 <- expr
+               _ <- ruString "时取"
+               exp2 <- expr
+               exp3 <- exprMatch 
+                   <|> try ( do _ <- ruString "否则取"
+                                exp3 <- expr
+                                return exp3)
+                   <|> (do return (ExprValue ValUnit))
+               return $ ExprApply (ExprApply (ExprApply (ExprVar "择") exp1) exp2) exp3
+
+--------------------------------------------------------
 
 exprR :: Parsec String st Expr
 exprR = try exprApplyRev
@@ -93,7 +115,7 @@ exprR = try exprApplyRev
 
 expr :: Parsec String st Expr
 expr = do _ <- ruSpaces
-          res <- (try exprLet) <|> (try exprApply)
+          res <- (try exprLet) <|> (try exprMatch) <|> (try exprApply)
           _ <- ruSpaces
           return res
 
