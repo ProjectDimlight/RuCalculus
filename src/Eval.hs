@@ -2,7 +2,6 @@
 module Eval where
 import AST
 import Text.Show.Unicode
-import HostFuncs (hostFuncs)
 
 data EvalError
   = Atom
@@ -25,9 +24,6 @@ apply' var val (ExprLambda v e)
 apply' var val (ExprApply a b) = ExprApply (apply' var val a) (apply' var val b)
 apply' _ _ (ExprValue v) = ExprValue v
 apply' _ _ (ExprHostFunc name t isLazy f) = ExprHostFunc name t isLazy f
-
-injectHostFunctions :: [(String, Type, IsLazy, Expr -> IO (Either String Expr))] -> Expr -> Expr
-injectHostFunctions ls e = foldl (\e (name, t, l, f) -> apply' name (ExprHostFunc name t l f) e) e ls
 
 step :: Expr -> IO (Either EvalError Expr)
 step (ExprVar v) = pure $ Left $ UnboundedVariable v
@@ -76,8 +72,3 @@ run showResult expr = reduce expr >>= \case
   Right expr -> if showResult then print expr else pure ()
   Left err -> putStrLn "= Error =" >> uprint err
 
-
-test :: IO ()
-test =
-  runStepByStep $ injectHostFunctions hostFuncs $
-    ExprApply (ExprLambda "a" $ ExprApply (ExprVar "印") (ExprValue $ ValInt 1)) $ ExprValue $ ValInt 1

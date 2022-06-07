@@ -78,7 +78,7 @@ exprApplyRev = do exp1 <- try exprLambda
 
 --------------------------------------------------------
 
-eta = ExprLambda "z" (ExprApply (ExprVar "y") (ExprApply (ExprVar "y") (ExprVar "z")))
+eta = ExprLambda "z" (ExprApply (ExprApply (ExprVar "y") (ExprVar "y")) (ExprVar "z"))
 step = ExprLambda "y" (ExprApply (ExprVar "x") eta)
 ycomb = ExprLambda "x" (ExprApply step step)
 

@@ -1,6 +1,12 @@
+{-# LANGUAGE LambdaCase #-}
 module HostFuncs where
 import AST
+import Eval
 import TypeChecker
+import Text.Show.Unicode
+
+injectHostFunctions :: [(String, Type, IsLazy, Expr -> IO (Either String Expr))] -> Expr -> Expr
+injectHostFunctions ls e = foldl (\e (name, t, l, f) -> apply' name (ExprHostFunc name t l f) e) e ls
 
 type ParamsCount = Int
 type CurriedHostFunc = Expr -> IO (Either String Expr)
@@ -54,9 +60,13 @@ hostFuncs =
         prod,
         div,
         mod,
+        
         match,
+
+        identical,
         equal,
         unequal,
+        
         print'
     ]
     where
@@ -65,6 +75,7 @@ hostFuncs =
         case (a, b) of
             (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ a' + b'
             (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValNum $ a' + b'
+            (ExprValue (ValUnit), ExprValue (ValUnit)) -> Right $ ExprValue $ ValUnit
             _ -> Left "参数非数，且亦数类也"
 
     sub = packUntyped False "差" 2 $ \[a, b] ->
@@ -93,17 +104,21 @@ hostFuncs =
         (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Left "不能实数求余"
         _ -> Left "参数非数也，且亦数类也"
 
-    match = packUntyped False "择" 3 $ \[cond, a, b] ->
-        pure $ case cond of
-          (ExprValue (ValInt 0)) -> Right $ b
-          (ExprValue (ValInt _)) -> Right $ a
-          _ -> Left "条件非数也，且亦数类也"
+    match = packUntyped True "择" 3 $ \[cond, a, b] ->
+        (reduce cond) >>= \case
+          (Right (ExprValue (ValInt 0))) -> pure $ Right $ b
+          (Right (ExprValue (ValInt _))) -> pure $ Right $ a
+          (Left _) -> (pure $ Right cond) --"条件非数也，且亦数类也"
 
+    identical = packUntyped False "同" 2 $ \[a, b] ->
+        pure $ case (a, b) of
+        (ExprValue a', ExprValue b') -> Right $ ExprValue $ ValInt $ if a' == b' then 1 else 0
+        _ -> Right $ ExprValue $ ValInt 0
+        
     equal = packUntyped False "等" 2 $ \[a, b] ->
         pure $ case (a, b) of
-        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ if a' == b' then 1 else 0
-        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValInt $ if a' == b' then 1 else 0
-        _ -> Left "参数非数也，且亦数类也"
+        (ExprValue a', ExprValue b') -> Right $ ExprValue $ ValInt $ if a' == b' then 1 else 0
+        _ -> Left ((ushow a) ++ "与" ++ (ushow b) ++ "：参数非值也")
     
     unequal = packUntyped False "异" 2 $ \[a, b] ->
         pure $ case (a, b) of

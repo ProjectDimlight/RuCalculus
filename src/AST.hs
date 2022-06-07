@@ -30,6 +30,7 @@ data Value
   = ValInt Integer
   | ValNum Double
   | ValUnit
+  | ValPair Value Value
   deriving (Show, Eq, Ord)
 
 type IsLazy = Bool
@@ -45,5 +46,5 @@ instance Show Expr where
     show (ExprValue val) = "(" ++ ushow val ++ ")"
     show (ExprVar var) = ushow var
     show (ExprLambda var exp) = "(lambda " ++  ushow var ++ " . " ++ ushow exp ++ ")"
-    show (ExprApply exp1 exp2) = "(" ++ ushow exp1 ++ " " ++ ushow exp2 ++ ")"
+    show (ExprApply exp1 exp2) = "(apply " ++ ushow exp1 ++ " " ++ ushow exp2 ++ ")"
     show (ExprHostFunc name t _ _) = "<" ++ name ++ ": " ++ show t ++ ">"
