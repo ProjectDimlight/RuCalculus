@@ -6,7 +6,7 @@ import Text.Parsec.Language (haskellDef)
 import Text.Parsec.String (parseFromFile)
 
 ruChar :: Parsec String st Char
-ruChar = noneOf "若入之取者也以为并则即元【】"
+ruChar = noneOf "令时入之取者也以为并否则即元【】"
 
 ruWhiteSpace :: Parsec String st Char
 ruWhiteSpace = oneOf " \t\n，：！？得。"
@@ -71,10 +71,12 @@ exprApplyRev :: Parsec String st Expr
 exprApplyRev = do exp1 <- try exprLambda
                       <|> try exprValue
                       <|> try exprVariable
-                  _ <- ruString "取"
-                  exp2 <- expr
-                  _ <- ruString "者"
-                  return $ ExprApply exp1 exp2
+                  rest exp1
+               where rest exp1 = try (do _ <- ruString "取"
+                                         exp2 <- expr
+                                         _ <- ruString "者"
+                                         rest $ ExprApply exp1 exp2)
+                             <|> return exp1
 
 --------------------------------------------------------
 
@@ -96,10 +98,12 @@ exprLet = do _ <- ruString "以"
 exprMatch :: Parsec String st Expr
 exprMatch = do _ <- ruString "令"
                exp1 <- expr
-               _ <- ruString "时取"
+               _ <- ruString "时"
+               _ <- optional $ ruString "取"
                exp2 <- expr
                exp3 <- exprMatch 
-                   <|> try ( do _ <- ruString "否则取"
+                   <|> try ( do _ <- ruString "否则"
+                                _ <- optional $ ruString "取"
                                 exp3 <- expr
                                 return exp3)
                    <|> (do return (ExprValue ValUnit))
