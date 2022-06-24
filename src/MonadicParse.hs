@@ -9,7 +9,7 @@ ruChar :: Parsec String st Char
 ruChar = noneOf "令时入之取者也以为并否则即元【】"
 
 ruWhiteSpace :: Parsec String st Char
-ruWhiteSpace = oneOf " \t\n，：！？得。"
+ruWhiteSpace = oneOf " \t\n、，：！？得。"
 
 ruSpaces :: Parsec String st ()
 ruSpaces = optional (many ruWhiteSpace)
@@ -53,6 +53,13 @@ exprApplyBin exp2 = (do _ <- ruString "与"
                         exp1 <- exprR
                         return (ExprApply (ExprApply exp1 exp2) exp3))
 
+exprApplyBin2 :: Expr -> (Parsec String st Expr)
+exprApplyBin2 exp2 = (do exp1 <- exprR
+                         _ <- try (ruString "于")
+                         t1 <- exprR
+                         exp3 <- (try (exprApplyBin t1)) <|> (return t1)
+                         return (ExprApply (ExprApply exp1 exp2) exp3))
+
 exprApplyUni :: Expr -> (Parsec String st Expr)
 exprApplyUni exp2 = (do _ <- ruString "之"
                         exp1 <- exprR
@@ -62,6 +69,8 @@ exprApply :: Parsec String st Expr
 exprApply = do exp2 <- exprR
                rest exp2
             where rest exp2 = (do x <- (try (exprApplyBin exp2))
+                                  rest x)
+                          <|> (do x <- (try (exprApplyBin2 exp2))
                                   rest x)
                           <|> (do x <- (try (exprApplyUni exp2))
                                   rest x)

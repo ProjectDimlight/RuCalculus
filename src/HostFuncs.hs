@@ -60,6 +60,11 @@ hostFuncs =
         prod,
         div,
         mod,
+
+        gt,
+        lt,
+        ge,
+        le,
         
         match,
 
@@ -82,6 +87,30 @@ hostFuncs =
         pure $ case (a, b) of
         (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ a' - b'
         (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValNum $ a' - b'
+        _ -> Left "参数非数也，且亦数类也"
+
+    gt = packUntyped False "盈" 2 $ \[a, b] ->
+        pure $ case (a, b) of
+        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ if a' > b' then 1 else 0
+        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValInt $ if a' > b' then 1 else 0
+        _ -> Left "参数非数也，且亦数类也"
+        
+    lt = packUntyped False "亏" 2 $ \[a, b] ->
+        pure $ case (a, b) of
+        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ if a' < b' then 1 else 0
+        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValInt $ if a' < b' then 1 else 0
+        _ -> Left "参数非数也，且亦数类也"
+        
+    ge = packUntyped False "【或盈】" 2 $ \[a, b] ->
+        pure $ case (a, b) of
+        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ if a' >= b' then 1 else 0
+        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValInt $ if a' >= b' then 1 else 0
+        _ -> Left "参数非数也，且亦数类也"
+        
+    le = packUntyped False "【或亏】" 2 $ \[a, b] ->
+        pure $ case (a, b) of
+        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ if a' <= b' then 1 else 0
+        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValInt $ if a' <= b' then 1 else 0
         _ -> Left "参数非数也，且亦数类也"
 
     prod = packUntyped False "积" 2 $ \[a, b] ->
