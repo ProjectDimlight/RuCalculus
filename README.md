@@ -1,6 +1,6 @@
 # RuCalculus
 
-"入语言"是一种用中文表示lambda演算的函数式编程语言，大概对标wenyan-lang。  
+"入语言"是一种用中文表示lambda演算的函数式编程语言，大概对标[wenyan-lang](https://github.com/wenyan-lang/wenyan)。  
 该项目致力于让lambda演算基本符合中文（文言文）的语法结构，例如入语言中大量使用后缀表达式（如square x写作甲之平方）。  
 项目刚刚启动，功能和文档尚不完全，欢迎贡献任何力量。
 
