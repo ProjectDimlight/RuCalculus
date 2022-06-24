@@ -46,3 +46,8 @@ stack run -- 源代码.入
 ## Documents
 
 - TODO
+
+## Acknowledgements
+
+- [wenyan-lang](https://github.com/wenyan-lang/wenyan)
+- [yuyan](https://github.com/yuyan-lang/yuyan/)
