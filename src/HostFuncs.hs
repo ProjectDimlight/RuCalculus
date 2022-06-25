@@ -55,6 +55,9 @@ packTyped isLazy name paramTypes returnType f
 hostFuncs :: [HostFuncQuad]
 hostFuncs =
     [
+        true', 
+        false',
+
         sum,
         sub,
         prod,
@@ -75,6 +78,14 @@ hostFuncs =
         print'
     ]
     where
+
+    true' = packUntyped True "真" 2 $ \[a, b] -> pure $ Right $ a
+    false' = packUntyped True "伪" 2 $ \[a, b] -> pure $ Right $ b
+
+    boolean cond = do
+        case (if cond then true' else false') of
+             (name, t, l, f) -> (ExprHostFunc name t l f)
+
     sum = packUntyped False "和" 2 $ \[a, b] ->
         pure $
         case (a, b) of
@@ -91,26 +102,26 @@ hostFuncs =
 
     gt = packUntyped False "盈" 2 $ \[a, b] ->
         pure $ case (a, b) of
-        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ if a' > b' then 1 else 0
-        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValInt $ if a' > b' then 1 else 0
+        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ boolean $ a' > b'
+        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ boolean $ a' > b'
         _ -> Left "参数非数也，且亦数类也"
         
     lt = packUntyped False "亏" 2 $ \[a, b] ->
         pure $ case (a, b) of
-        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ if a' < b' then 1 else 0
-        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValInt $ if a' < b' then 1 else 0
+        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ boolean $ a' < b'
+        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ boolean $ a' < b'
         _ -> Left "参数非数也，且亦数类也"
         
     ge = packUntyped False "【或盈】" 2 $ \[a, b] ->
         pure $ case (a, b) of
-        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ if a' >= b' then 1 else 0
-        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValInt $ if a' >= b' then 1 else 0
+        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ boolean $ a' >= b'
+        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ boolean $ a' >= b'
         _ -> Left "参数非数也，且亦数类也"
         
     le = packUntyped False "【或亏】" 2 $ \[a, b] ->
         pure $ case (a, b) of
-        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ if a' <= b' then 1 else 0
-        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValInt $ if a' <= b' then 1 else 0
+        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ boolean $ a' <= b'
+        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ boolean $ a' <= b'
         _ -> Left "参数非数也，且亦数类也"
 
     prod = packUntyped False "积" 2 $ \[a, b] ->
@@ -141,19 +152,19 @@ hostFuncs =
 
     identical = packUntyped False "同" 2 $ \[a, b] ->
         pure $ case (a, b) of
-        (ExprValue a', ExprValue b') -> Right $ ExprValue $ ValInt $ if a' == b' then 1 else 0
-        _ -> Right $ ExprValue $ ValInt 0
+        (ExprValue a', ExprValue b') -> Right $ boolean $ a' == b'
+        _ -> Right $ boolean $ False
         
     equal = packUntyped False "等" 2 $ \[a, b] ->
         pure $ case (a, b) of
-        (ExprValue a', ExprValue b') -> Right $ ExprValue $ ValInt $ if a' == b' then 1 else 0
+        (ExprValue a', ExprValue b') -> Right $ boolean $ a' == b'
         _ -> Left ((ushow a) ++ "与" ++ (ushow b) ++ "：参数非值也")
     
     unequal = packUntyped False "异" 2 $ \[a, b] ->
         pure $ case (a, b) of
-        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ ExprValue $ ValInt $ if a' /= b' then 1 else 0
-        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ ExprValue $ ValInt $ if a' /= b' then 1 else 0
-        _ -> Left "参数非数也，且亦数类也"
+        (ExprValue (ValInt a'), ExprValue (ValInt b')) -> Right $ boolean $ a' /= b'
+        (ExprValue (ValNum a'), ExprValue (ValNum b')) -> Right $ boolean $ a' /= b'
+        _ -> Right $ boolean $ True
 
     print' = packResultTyped False "书" 1 (TypeVal ValTypeUnit) $ \[a] -> 
         print a >> pure (Right $ ExprValue ValUnit)

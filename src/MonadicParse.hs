@@ -97,7 +97,7 @@ exprLet :: Parsec String st Expr
 exprLet = do _ <- ruString "以"
              var <- variable
              _ <- ruString "为"
-             exp1 <- exprApply
+             exp1 <- (try exprMatch) <|> (try exprApply)
              exp2 <- try(do _ <- try (ruString "并") <|> try (ruString "则")
                             exp2 <- expr
                             return exp2)
@@ -116,7 +116,7 @@ exprMatch = do _ <- ruString "令"
                                 exp3 <- expr
                                 return exp3)
                    <|> (do return (ExprValue ValUnit))
-               return $ ExprApply (ExprApply (ExprApply (ExprVar "择") exp1) exp2) exp3
+               return $ ExprApply (ExprApply exp1 exp2) exp3
 
 --------------------------------------------------------
 

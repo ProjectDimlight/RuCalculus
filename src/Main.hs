@@ -35,8 +35,8 @@ help = putStr $ unlines
 runProgram :: Option -> IO ()
 runProgram Option { debug = debug, file = Just file } =
   let expr = parseRu file
-      runner = if debug then runStepByStep else run True
-      runCode = runner . injectHostFunctions hostFuncs in
+      runnerBasic = if debug then runStepByStep else run True
+      runCode = runnerBasic . injectHostFunctions hostFuncs in
   expr >>= \case
     Left err -> print err
     Right x -> runCode x
