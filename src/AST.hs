@@ -41,6 +41,7 @@ data Expr
   | ExprApply Expr Expr
   | ExprValue Value
   | ExprHostFunc String Type IsLazy (Expr -> IO (Either String Expr))
+  | ExprInclude Variable
 
 instance Show Expr where
     show (ExprValue val) = "(" ++ ushow val ++ ")"
@@ -48,3 +49,4 @@ instance Show Expr where
     show (ExprLambda var exp) = "(lambda " ++  ushow var ++ " . " ++ ushow exp ++ ")"
     show (ExprApply exp1 exp2) = "(apply " ++ ushow exp1 ++ " " ++ ushow exp2 ++ ")"
     show (ExprHostFunc name t _ _) = "<" ++ name ++ ": " ++ show t ++ ">"
+    show (ExprInclude var) = "<import from " ++ var ++ ">"
