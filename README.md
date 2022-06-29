@@ -45,7 +45,7 @@ stack run -- 源代码.入
 ```
 - 多参数函数科里化：
 ```
-甲之盈         // 等价于 lambda y. greater x y，即取甲“盈”过的数，也就是判断是否小于甲的函数
+甲之盈               // 等价于 lambda y. greater x y，即取甲“盈”过的数，也就是判断是否小于甲的函数
 ```
 
 ## Documents
