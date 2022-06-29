@@ -2,13 +2,14 @@
 
 module MonadicParse where
 import AST
+import Data.Char
 import Text.Parsec
 import qualified Text.Parsec.Token as P
 import Text.Parsec.Language (haskellDef)
 import Text.Parsec.String (parseFromFile)
 
 ruChar :: Parsec String st Char
-ruChar = noneOf "令时入之取者也以为并否则即元【】"
+ruChar = noneOf "令时入之取者也以为并否则即元引【】"
 
 ruWhiteSpace :: Parsec String st Char
 ruWhiteSpace = oneOf " \t\n、，：！？得。"
@@ -37,7 +38,19 @@ ruString str = do _ <- ruSpaces
                   _ <- ruSpaces
                   return res
 
-exprValue = fmap ExprValue value
+stringConstant' :: Parsec String st Expr
+stringConstant' = try (do _ <- string "”"
+                          return $ ExprValue ValUnit)
+              <|> try (do c <- noneOf "”"
+                          rest <- stringConstant'
+                          return $ ExprApply (ExprApply (ExprVar "对") (ExprValue (ValInt (toInteger (ord c))))) rest)
+
+stringConstant :: Parsec String st Expr
+stringConstant = do _ <- string "“"
+                    lst <- stringConstant'
+                    return lst
+
+exprValue = stringConstant <|> fmap ExprValue value
 exprVariable = fmap ExprVar variable
 
 exprLambda :: Parsec String st Expr
@@ -65,7 +78,7 @@ exprApplyBin2 exp2 = (do exp1 <- exprR
 exprApplyUni :: Expr -> (Parsec String st Expr)
 exprApplyUni exp2 = (do _ <- ruString "之"
                         exp1 <- exprR
-                        return (ExprApply exp1 exp2)) 
+                        return (ExprApply exp1 exp2))
 
 exprApply :: Parsec String st Expr
 exprApply = do exp2 <- exprR
@@ -84,6 +97,12 @@ exprApplyRev = do exp1 <- try exprLambda
                       <|> try exprVariable
                   rest exp1
                where rest exp1 = try (do _ <- ruString "取"
+                                         _ <- variable
+                                         _ <- ruString "为"
+                                         exp2 <- expr
+                                         _ <- ruString "者"
+                                         rest $ ExprApply exp1 exp2)
+                             <|> try (do _ <- ruString "取"
                                          exp2 <- expr
                                          _ <- ruString "者"
                                          rest $ ExprApply exp1 exp2)

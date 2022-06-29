@@ -1,6 +1,7 @@
 {-# LANGUAGE LambdaCase #-}
 module HostFuncs where
 import AST
+import Data.Char
 import TypeChecker
 import Text.Show.Unicode
 
@@ -53,7 +54,7 @@ hostFuncs =
     [
         true', 
         false',
-
+        
         sum,
         sub,
         prod,
@@ -69,7 +70,8 @@ hostFuncs =
         equal,
         unequal,
         
-        print'
+        print',
+        printZi
     ]
     where
 
@@ -155,6 +157,12 @@ hostFuncs =
         _ -> Right $ boolean $ True
 
     print' = packResultTyped False "书" 1 (TypeVal ValTypeUnit) $ \[a] -> 
-        print a >> pure (Right $ ExprValue ValUnit)
+        putStr (show a) >> pure (Right $ ExprValue ValUnit)
+
+    printZi = packResultTyped False "【活字印刷】" 1 (TypeVal ValTypeUnit) $ \[a] -> 
+        case (a) of
+        ExprValue (ValInt a') -> putStr (urecover [chr (fromIntegral a' :: Int)]) >> pure (Right $ ExprValue ValUnit)
+        _ -> pure $ Left ((ushow a) ++ "：参数非整数也，寻其活字而不得")
+
 
     
