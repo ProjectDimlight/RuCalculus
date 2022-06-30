@@ -51,7 +51,7 @@ stack run -- 源代码.入
 ## Documents
 
 - [语法手册](./doc/Manual.md)
-- [教程](./doc/Tutorial.md)
+- [教程1：入门](./doc/Tutorial1.md)
 
 ## Acknowledgements
 
