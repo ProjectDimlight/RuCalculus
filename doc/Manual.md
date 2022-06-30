@@ -1,4 +1,4 @@
-# Document
+# Manual
 
 ## 语法特性
 
