@@ -49,7 +49,8 @@ stack run -- 源代码.入
 
 ## Documents
 
-- TODO
+- [语法手册](./doc/Manual.md)
+- [教程](./doc/Tutorial.md)
 
 ## Acknowledgements
 
