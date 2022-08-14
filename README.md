@@ -1,7 +1,12 @@
 # 入墨答（Rumbda Calculus）
 
-"入语言"（又称Rumbda Calculus，RuCalculus，Rumbda，或者入墨答）是一种用中文表示lambda演算的函数式编程语言，大概对标[wenyan-lang](https://github.com/wenyan-lang/wenyan)。  
-该项目致力于让lambda演算贴合中文（文言文），因而加入大量变种语法以适应各类语言习惯。 由于基于lambda演算，在很多情况下入语言的代码将会更加清晰而简练（例如[斐氏列线性.入](./samples/斐氏列线性.入)和[快排.入](./samples/快排.入)） 。
+"入墨答"（又称Rumbda Calculus，RuCalculus，或者入语言）是一种用中文表示lambda演算的函数式编程语言。该项目致力于让lambda演算贴合中文（文言文），因而加入大量变种语法以适应各类语言习惯。 由于基于lambda演算，在很多情况下入语言的代码将会更加清晰而简练（例如[斐氏列线性.入](./samples/斐氏列线性.入)和[快排.入](./samples/快排.入)） 。
+
+- 入墨答是lambda的谐音
+- 入象征λ
+- 墨，即笔墨，象征汉字
+- 答，即答题，象征演算
+- 故，入墨答即为“λ汉字演算”。
 
 
 项目刚刚启动，功能和文档尚不完全，欢迎贡献任何力量。
