@@ -18,6 +18,7 @@ data EvalError
   | IncludeError Text.Parsec.Error.ParseError
   deriving Show
 
+removeHeadTail :: String -> String
 removeHeadTail str = filter (/='】')  (filter (/='【') str)
 
 mapLeft :: (t -> u) -> Either t b -> Either u b

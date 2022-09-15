@@ -9,6 +9,7 @@ import HostFuncs
 import Text.Parsec
 import Text.Show.Unicode
 import qualified System.Environment
+import Interp
 
 data Option = Option { debug :: Bool, file :: Maybe String }
 
@@ -35,11 +36,16 @@ help = putStr $ unlines
 runProgram :: Option -> IO ()
 runProgram Option { debug = debug, file = Just file } =
   let expr = parseRu file
-      runnerBasic = if debug then runStepByStep else run True
+      runnerBasic = runInterp
       runCode = runnerBasic . injectHostFunctions hostFuncs in
   expr >>= \case
     Left err -> print err
-    Right x -> runCode x
+    Right x -> do
+        res <- runCode x
+        case res of
+            Left err -> print err
+            Right atom -> print atom
+        return ()
 runProgram _ = help
 
 main :: IO ()
