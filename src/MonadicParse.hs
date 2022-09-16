@@ -114,18 +114,19 @@ eta = ExprLambda "z" (ExprApply (ExprApply (ExprVar "y") (ExprVar "y")) (ExprVar
 form = ExprLambda "y" (ExprApply (ExprVar "x") eta)
 ycomb = ExprLambda "x" (ExprApply form form)
 
-exprLet :: Parsec String st Expr
-exprLet = do _ <- ruString "以"
-             var <- variable
-             _ <- ruString "为"
-             exp1 <- (try exprMatch) <|> (try exprApply)
-             exp2 <- try(do _ <- try (ruString "并") <|> try (ruString "则")
-                            exp2 <- expr
-                            return exp2)
-                 <|> try exprLet
-                 <|> try(do _ <- eof
-                            return $ ExprVar "【引用者】")
-             return $ ExprApply (ExprLambda var exp2) (ExprApply ycomb (ExprLambda var exp1))
+exprLet :: Expr -> (Parsec String st Expr)
+exprLet exp = do 
+    _ <- ruString "以"
+    var <- variable
+    _ <- ruString "为"
+    exp1 <- (try exprMatch) <|> (try exprApply)
+    exp2 <- try(do _ <- try (ruString "并") <|> try (ruString "则")
+                   exp2 <- expr
+                   return exp2)
+        <|> try (exprLet exp)
+        <|> try(do _ <- eof
+                   return exp)
+    return $ ExprApply (ExprLambda var exp2) (ExprApply ycomb (ExprLambda var exp1))
 
 exprMatch :: Parsec String st Expr
 exprMatch = do _ <- ruString "令"
@@ -149,17 +150,26 @@ exprR = try exprApplyRev
     <|> try exprValue
     <|> try exprVariable
 
-exprInclude :: Parsec String st Expr
-exprInclude = do _ <- ruString "引"
-                 fname <- variable
-                 expX <- expr
-                 return $ ExprApply (ExprLambda "【引用者】" (ExprInclude fname)) expX
-
 expr :: Parsec String st Expr
-expr = do _ <- ruSpaces
-          res <- (try exprInclude) <|> (try exprLet) <|> (try exprMatch) <|> (try exprApply)
-          _ <- ruSpaces
-          return res
+expr = do
+    _ <- ruSpaces
+    res <- (try (exprLet (ExprValue ValUnit))) <|> (try exprMatch) <|> (try exprApply)
+    _ <- ruSpaces
+    return res
 
-parseRu :: FilePath -> IO (Either ParseError Expr)
-parseRu = parseFromFile expr
+exprInclude :: Expr -> (Parsec String st Expr)
+exprInclude env = do
+    _ <- ruString "引"
+    fname <- variable
+    exp <- exprOrInclude env
+    return $ (ExprInclude fname exp)
+
+exprOrInclude :: Expr -> (Parsec String st Expr)
+exprOrInclude exp = do
+    _ <- ruSpaces
+    res <- (try (exprInclude exp)) <|> (try (exprLet exp)) <|> (try expr)
+    _ <- ruSpaces
+    return res
+
+parseRu :: FilePath -> Expr -> IO (Either ParseError Expr)
+parseRu file exp = parseFromFile (exprOrInclude exp) file

@@ -7,6 +7,7 @@ import Data.Map as M
 import Control.Monad.Except
 import Control.Exception
 import qualified Text.Parsec as Text.Parsec.Error
+import HostFuncs
 
 data Atom
   = AtomValue Value
@@ -54,6 +55,7 @@ interp env (ExprApply e1 e2) = do
           e2' <- interp env e2
           case e2' of
             AtomValue val -> return $ ExprValue val
+            AtomClos env var expr -> return $ ExprLambda var expr
             _ -> throwError (NotAnAtom e2)
       res <- lift $ f e2'
       case res of
@@ -62,11 +64,11 @@ interp env (ExprApply e1 e2) = do
     _ -> throwError (CannotApply e1 e2)
 interp env (ExprHostFunc name t isLazy f) =
   return $ AtomHost env name t isLazy f
-interp env (ExprInclude var) = do
-  lib <- lift $ parseRu (removeHeadTail var)
+interp env (ExprInclude var expr) = do
+  lib <- lift $ parseRu (removeHeadTail var) expr
   case lib of
     Left err -> throwError $ IncludeError err
-    Right exp -> interp env exp
+    Right exp -> interp env $ injectHostFunctions hostFuncs exp
 
 runInterp :: Expr -> IO (Either InterpError Atom)
 runInterp expr = runExceptT $ interp M.empty expr

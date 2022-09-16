@@ -12,10 +12,8 @@ executable RuCalculus
   hs-source-dirs:      src
   main-is:             Main.hs
   other-modules:       AST
-                     , Eval
                      , TypeChecker
                      , HostFuncs
-                     , Parse
                      , MonadicParse
                      , Interp
   default-language:    Haskell2010

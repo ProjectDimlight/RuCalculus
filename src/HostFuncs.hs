@@ -19,6 +19,20 @@ pack' l name t n f args = \arg ->
                              TypeFuncDelayWithResultType _ _ a -> a
                              _ -> error "Can not pack function with non-function type"
 
+apply' :: Variable -> Expr -> Expr -> Expr
+apply' var val (ExprVar v)
+  | v == var = val
+  | otherwise = ExprVar v
+apply' var val (ExprLambda v e)
+  | var == v = ExprLambda v e
+  | otherwise = ExprLambda v $ apply' var val e
+apply' var val (ExprApply a b) = ExprApply (apply' var val a) (apply' var val b)
+apply' _ _ (ExprValue v) = ExprValue v
+apply' _ _ (ExprHostFunc name t isLazy f) = ExprHostFunc name t isLazy f
+apply' _ _ (ExprInclude v e) = ExprInclude v e
+
+injectHostFunctions :: [(String, Type, IsLazy, Expr -> IO (Either String Expr))] -> Expr -> Expr
+injectHostFunctions ls e = foldl (\e (name, t, l, f) -> apply' name (ExprHostFunc name t l f) e) e ls
 
 makeUntypedHostFuncType :: ParamsCount -> Type -> Type
 makeUntypedHostFuncType 0 resultType = resultType
