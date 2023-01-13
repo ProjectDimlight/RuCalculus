@@ -31,7 +31,10 @@ data InterpError
   deriving (Show)
 
 removeHeadTail :: String -> String
-removeHeadTail str = Prelude.filter (/='】')  (Prelude.filter (/='【') str)
+removeHeadTail = Prelude.filter (/='】') .
+                 Prelude.filter (/='」') .
+                 Prelude.filter (/='【') .
+                 Prelude.filter (/='「')
 
 interp :: InterpEnv -> Expr -> ExceptT InterpError IO Atom
 interp env (ExprValue val) =
