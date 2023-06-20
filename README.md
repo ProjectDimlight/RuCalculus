@@ -91,7 +91,7 @@ stack run -- 源代码.入
 这些是灵感来源：
 - [wenyan-lang](https://github.com/wenyan-lang/wenyan)
 - [yuyan](https://github.com/yuyan-lang/yuyan/)
-- [dongbei]https://github.com/zhanyong-wan/dongbei
+- [dongbei](https://github.com/zhanyong-wan/dongbei)
 
 这些是编译/解释器优化方案：
 _暂无_
