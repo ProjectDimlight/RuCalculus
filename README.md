@@ -24,8 +24,6 @@ RuCalculus 源代码.入 -d   # 逐步打印演算过程
 stack run -- 源代码.入
 ```
 
-在[samples](./samples/)目录下可以查看现有的范例程序。
-
 ## Highlight grammar features
 
 - 入
@@ -35,8 +33,9 @@ stack run -- 源代码.入
 - 自带丫（y组合子）的let
 ```
 以甲为1              // 等价于 let 甲 = 1
+以函为入甲得甲        // 差不多等价于 function 函(甲) {return 甲}
 ```
-- 单参数函数更符合中文语序：
+- 单参数函数多种语序、更符合中文习惯：
 ```
 甲之【平方】          // 等价于 square x，相当于 pipeline，左结合
 【平方】取甲者        // 等价于 square x
@@ -53,6 +52,35 @@ stack run -- 源代码.入
 甲之盈               // 等价于 lambda y. greater x y，即取甲“盈”过的数，也就是判断是否小于甲的函数
 ```
 
+## Sample
+
+```
+以【快速排序】为：
+入列
+令列同于元时取元
+否则
+以【首项】为：列之首
+以【亏列】为：筛取【原列】为列者、取【条件】为【首项】之盈者   // 此处可莉化，filter函数为：入甲 得 首项 盈于 甲，即筛选比首项小的元素
+以【等列】为：筛取【原列】为列者、取【条件】为【首项】之等者
+以【盈列】为：筛取【原列】为列者、取【条件】为【首项】之亏者
+以【亏序】为：【亏列】之【快速排序】                       // 递归
+以【盈序】为：【盈列】之【快速排序】
+则得【亏序】衔于【等列】衔于【盈序】
+```
+
+在[samples](./samples/)目录下可以查看现有的范例程序。
+
+## A poem
+
+```
+    丫
+         SOL
+入函入程程再程 |注: lambda 函 lambda 程.. (程 程)
+取之再函复其声 |注: 函(...)，相当于重复下一个式子，即复其声
+入式得函式之式 |注: (...) lambda 式 函(式 式)
+即入新式唤自身 |注: (...)式 = 式(...)式，成为y组合子，实现递归，即唤(call)自身
+```
+
 ## Documents
 
 - [语法手册](./doc/Manual.md)
@@ -60,5 +88,10 @@ stack run -- 源代码.入
 
 ## Acknowledgements
 
+这些是灵感来源：
 - [wenyan-lang](https://github.com/wenyan-lang/wenyan)
 - [yuyan](https://github.com/yuyan-lang/yuyan/)
+- [dongbei]https://github.com/zhanyong-wan/dongbei
+
+这些是编译/解释器优化方案：
+_暂无_
