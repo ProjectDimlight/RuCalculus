@@ -51,6 +51,7 @@ stack run -- 源代码.入
 ```
 甲之盈               // 等价于 lambda y. greater x y，即取甲“盈”过的数，也就是判断是否小于甲的函数
 ```
+- 另外，除了用于标识符分词的方括号【】外，各种标点符号、空白字符均可任意增减，仅为美观，无实际语义
 
 ## Sample
 
@@ -93,5 +94,5 @@ stack run -- 源代码.入
 - [yuyan](https://github.com/yuyan-lang/yuyan/)
 - [dongbei](https://github.com/zhanyong-wan/dongbei)
 
-这些是编译/解释器优化方案：
+这些是编译/解释器优化方案：  
 _暂无_
