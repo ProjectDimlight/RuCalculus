@@ -9,7 +9,7 @@ import Text.Parsec.Language (haskellDef)
 import Text.Parsec.String (parseFromFile)
 
 ruChar :: Parsec String st Char
-ruChar = noneOf "令时入之取者也以为并否则即元引【】"
+ruChar = noneOf "令时入之取者也以为并否则即元引【】「」"
 
 ruWhiteSpace :: Parsec String st Char
 ruWhiteSpace = oneOf " \t\n、，：！？得。"
@@ -23,7 +23,9 @@ concatParser [s] = s
 concatParser (s:xs) = fmap (++) s <*> concatParser xs
 
 variable :: Parsec String st AST.Variable
-variable = try ( concatParser [ruString "【", many (noneOf "】"), ruString "】"] )
+variable = try ( concatParser [(try (ruString "「") >> pure "【") <|> try (ruString "【"), 
+                               many (noneOf "】」"), 
+                               (try (ruString "」") >> pure "】") <|> try (ruString "】")] )
     <|> count 1 (ruChar)
 
 lexer = P.makeTokenParser haskellDef
